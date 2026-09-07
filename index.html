@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Agriculture Academy | Quick AgLE Self-Test</title>
+<style>
+  :root{
+    --primary:#2e7d32;
+    --primary-dark:#1b5e20;
+    --primary-light:#e8f3e8;
+    --accent:#f9a825;
+    --accent-dark:#e08c00;
+    --bg:#f5f7f2;
+    --card:#ffffff;
+    --text:#20281f;
+    --muted:#63705f;
+    --border:#e0e6db;
+    --success:#2e7d32;
+    --success-bg:#e6f4ea;
+    --error:#c62828;
+    --error-bg:#fdeaea;
+    --radius-lg:18px;
+    --radius-md:12px;
+    --radius-sm:8px;
+    --shadow:0 6px 20px rgba(30,50,30,0.08);
+    --shadow-sm:0 2px 8px rgba(30,50,30,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#f5f7f2 0%,#eef3ea 100%);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:920px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+  }
+  /* Topbar */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(245,247,242,0.92);
+    backdrop-filter:blur(6px);
+    padding:14px 20px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    font-weight:800;
+    font-size:1.05rem;
+    color:var(--primary-dark);
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .progress-wrap{display:flex; align-items:center; gap:10px;}
+  .progress-track{
+    flex:1; height:8px; background:var(--border); border-radius:99px; overflow:hidden;
+  }
+  .progress-bar{
+    height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--accent));
+    border-radius:99px; transition:width .4s ease;
+  }
+  #progressLabel{font-size:.78rem; color:var(--muted); white-space:nowrap; font-weight:600;}
+
+  main{flex:1; padding:20px; padding-bottom:110px;}
+
+  .slide{display:none; animation:fadeIn .35s ease;}
+  .slide.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Intro */
+  .intro-card{
+    background:var(--card); border-radius:var(--radius-lg); padding:36px 26px;
+    text-align:center; box-shadow:var(--shadow); margin-top:10px;
+  }
+  .intro-emoji{font-size:2.6rem; margin-bottom:6px;}
+  .intro-card h1{font-size:1.5rem; margin:6px 0 10px; color:var(--primary-dark);}
+  .intro-card p{color:var(--muted); line-height:1.6; font-size:.98rem; max-width:520px; margin:0 auto 10px;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 26px;}
+  .badge{
+    background:var(--primary-light); color:var(--primary-dark); font-weight:700;
+    padding:8px 14px; border-radius:99px; font-size:.82rem; border:1px solid #cfe6cf;
+  }
+  .domain-preview{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:10px; margin:20px 0; text-align:left;
+  }
+  .domain-chip{
+    background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 12px; font-size:.82rem; font-weight:600; color:var(--text);
+  }
+  .domain-chip span{display:block; font-size:.72rem; color:var(--muted); font-weight:500; margin-top:2px;}
+
+  /* Buttons */
+  .btn{
+    border:none; border-radius:var(--radius-md); padding:14px 22px; font-size:1rem; font-weight:700;
+    cursor:pointer; min-height:50px; transition:transform .12s ease, box-shadow .12s ease, opacity .12s;
+    touch-action:manipulation;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--primary); color:#fff; box-shadow:0 4px 12px rgba(46,125,50,0.3);}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-accent{background:var(--accent); color:#3a2a00; box-shadow:0 4px 12px rgba(249,168,37,0.35);}
+  .btn-accent:hover{background:var(--accent-dark);}
+  .btn-ghost{background:transparent; color:var(--muted); border:2px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--primary); color:var(--primary-dark);}
+  .btn-block{width:100%;}
+  .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+  .hidden{display:none !important;}
+
+  /* Domain slide layout */
+  .domain-header{margin-bottom:14px;}
+  .domain-tag{
+    display:inline-block; background:var(--primary-light); color:var(--primary-dark);
+    font-size:.75rem; font-weight:800; letter-spacing:.03em; padding:5px 10px; border-radius:99px;
+    text-transform:uppercase; margin-bottom:8px;
+  }
+  .domain-header h2{margin:0; font-size:1.3rem; color:var(--text);}
+
+  .domain-grid{
+    display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:16px;
+  }
+  @media(min-width:760px){
+    .domain-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  .review-panel, .visual-panel, .quiz-card{
+    background:var(--card); border-radius:var(--radius-lg); padding:18px 18px 20px;
+    box-shadow:var(--shadow-sm); border:1px solid var(--border);
+  }
+  .umbrella{
+    margin:0 0 12px; font-size:1.02rem; color:var(--primary-dark); font-weight:800;
+    padding-bottom:8px; border-bottom:2px dashed var(--border);
+  }
+  .subtopics{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .subtopics li{
+    font-size:.9rem; line-height:1.5; color:var(--text); padding-left:20px; position:relative;
+  }
+  .subtopics li::before{
+    content:"🌱"; position:absolute; left:0; top:0; font-size:.85rem;
+  }
+  .subtopics li strong{color:var(--primary-dark);}
+
+  .visual-panel h4{margin:0 0 10px; font-size:.9rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.02em;}
+  .visual-panel svg{width:100%; height:auto; display:block; background:var(--bg); border-radius:var(--radius-sm);}
+  .visual-panel input[type="range"]{width:100%; margin-top:12px; accent-color:var(--primary); height:26px;}
+  .visual-readout{
+    font-size:.82rem; color:var(--text); background:var(--primary-light); border-radius:var(--radius-sm);
+    padding:9px 11px; margin-top:10px; line-height:1.5; min-height:20px;
+  }
+
+  /* Marketing chain visual */
+  .chain-row{display:flex; align-items:center; justify-content:space-between; gap:4px; flex-wrap:wrap; margin-top:6px;}
+  .chain-node{
+    flex:1; min-width:70px; text-align:center; background:var(--bg); border:1px solid var(--border);
+    border-radius:var(--radius-sm); padding:10px 6px;
+  }
+  .chain-node .node-title{font-size:.68rem; color:var(--muted); font-weight:700; text-transform:uppercase;}
+  .chain-node .node-value{font-size:.95rem; font-weight:800; color:var(--primary-dark); margin-top:3px;}
+  .chain-arrow{font-size:1.1rem; color:var(--accent-dark); padding:0 2px;}
+
+  /* Sector bars */
+  .sector-chart{display:flex; align-items:flex-end; gap:16px; height:150px; padding:0 10px; justify-content:center;}
+  .sector-col{display:flex; flex-direction:column; align-items:center; gap:6px; width:60px;}
+  .sector-bar{width:36px; border-radius:6px 6px 0 0; transition:height .4s ease;}
+  .bar-agri{background:var(--primary);}
+  .bar-industry{background:var(--accent);}
+  .bar-services{background:#5b8def;}
+  .sector-col .sector-name{font-size:.72rem; color:var(--muted); font-weight:700;}
+
+  /* Quiz card */
+  .question-text{font-size:1rem; font-weight:700; margin:0 0 14px; line-height:1.5;}
+  .options{display:flex; flex-direction:column; gap:10px;}
+  .option-card{
+    background:var(--bg); border:2px solid var(--border); border-radius:var(--radius-md);
+    padding:14px 16px; font-size:.92rem; cursor:pointer; min-height:48px; display:flex; align-items:center;
+    transition:border-color .15s ease, background .15s ease; line-height:1.4;
+  }
+  .option-card:active{transform:scale(0.99);}
+  .option-card.selected{border-color:var(--primary); background:var(--primary-light); font-weight:700;}
+  .option-card.disabled{cursor:not-allowed; pointer-events:none;}
+  .option-card.correct-answer{border-color:var(--success); background:var(--success-bg); font-weight:700;}
+  .option-card.wrong-answer{border-color:var(--error); background:var(--error-bg); font-weight:700;}
+
+  .action-row{margin-top:16px;}
+  .confirm-box{
+    margin-top:14px; background:#fff8e6; border:1px solid #f3d98a; border-radius:var(--radius-md);
+    padding:14px 16px;
+  }
+  .confirm-box p{margin:0 0 12px; font-weight:700; font-size:.9rem;}
+  .confirm-actions{display:flex; gap:10px;}
+  .confirm-actions .btn{flex:1; padding:11px; min-height:44px;}
+
+  .feedback{margin-top:16px; border-radius:var(--radius-md); padding:14px 16px;}
+  .feedback-correct{background:var(--success-bg); border:1px solid #b6dfc0;}
+  .feedback-wrong{background:var(--error-bg); border:1px solid #f0bcbc;}
+  .feedback-title{margin:0 0 6px; font-weight:800; font-size:1rem;}
+  .feedback p{margin:0 0 8px; font-size:.9rem; line-height:1.5;}
+  .calc-box{
+    margin-top:8px; background:rgba(255,255,255,0.6); border-radius:var(--radius-sm);
+    padding:10px 12px; font-size:.85rem; line-height:1.8; font-family:"SFMono-Regular",Consolas,monospace;
+  }
+
+  /* Score page */
+  .score-card{
+    background:var(--card); border-radius:var(--radius-lg); padding:32px 22px; text-align:center;
+    box-shadow:var(--shadow); margin-top:6px;
+  }
+  .score-number{
+    font-size:3rem; font-weight:900; color:var(--primary-dark); margin:8px 0;
+  }
+  .motivation{font-size:.98rem; color:var(--text); max-width:500px; margin:6px auto 22px; line-height:1.6;}
+  .rec-title{font-size:.9rem; font-weight:800; text-transform:uppercase; letter-spacing:.02em; color:var(--muted); margin:22px 0 12px; text-align:left;}
+  #recommendations{display:flex; flex-direction:column; gap:10px; text-align:left;}
+  .rec-item{
+    background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:12px 14px; font-size:.87rem; line-height:1.5;
+  }
+  .rec-item strong{color:var(--primary-dark);}
+  .all-correct{background:var(--success-bg); border-radius:var(--radius-md); padding:14px; font-weight:700;}
+
+  /* Footer nav */
+  .navbar{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:920px; background:rgba(245,247,242,0.96); backdrop-filter:blur(6px);
+    border-top:1px solid var(--border); padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+    display:flex; gap:10px; z-index:20;
+  }
+  .navbar .btn{flex:1;}
+
+  /* Toast */
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#2b2b2b; color:#fff; padding:12px 20px; border-radius:99px; font-size:.85rem;
+    font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+    z-index:50; white-space:nowrap; box-shadow:0 6px 18px rgba(0,0,0,0.2);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:480px){
+    .intro-card h1{font-size:1.25rem;}
+    .score-number{font-size:2.3rem;}
+    main{padding:14px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">🌾 Agriculture Academy</div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      <span id="progressLabel">Intro</span>
+    </div>
+  </div>
+
+  <main id="slides">
+
+    <!-- INTRO -->
+    <section class="slide active" id="slide-0">
+      <div class="intro-card">
+        <div class="intro-emoji">📗</div>
+        <h1>Quick AgLE Self-Test</h1>
+        <p>A rapid diagnostic covering the five core knowledge domains of the Agriculturist Licensure Examination (AgLE): General Economics, Microeconomics, Macroeconomics, Agricultural Marketing, and Agriculture &amp; Economic Growth. Each domain includes a quick concept review, an interactive figure, and one exam-style question.</p>
+        <div class="badge-row">
+          <span class="badge">⏱ 10–15 minutes</span>
+          <span class="badge">📝 5 questions</span>
+          <span class="badge">🔁 1 free retake</span>
+        </div>
+        <div class="domain-preview">
+          <div class="domain-chip">1. General Economics<span>Scarcity &amp; choice</span></div>
+          <div class="domain-chip">2. Microeconomics<span>Markets &amp; elasticity</span></div>
+          <div class="domain-chip">3. Macroeconomics<span>GDP &amp; inflation</span></div>
+          <div class="domain-chip">4. Agri Marketing<span>Margins &amp; channels</span></div>
+          <div class="domain-chip">5. Agri &amp; Growth<span>Structural change</span></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="startBtn">Start Quiz →</button>
+      </div>
+    </section>
+
+    <!-- DOMAIN 1: GENERAL ECONOMICS -->
+    <section class="slide" id="slide-1">
+      <div class="domain-header">
+        <span class="domain-tag">Domain 1 of 5</span>
+        <h2>General Economics</h2>
+      </div>
+      <div class="domain-grid">
+        <div class="review-panel">
+          <h3 class="umbrella">📘 Scarcity &amp; Choice</h3>
+          <ul class="subtopics">
+            <li><strong>Scarcity</strong> — unlimited wants vs. limited resources force every economic decision.</li>
+            <li><strong>Opportunity Cost</strong> — the value of the next-best alternative given up when a choice is made.</li>
+            <li><strong>Production Possibility Frontier (PPF)</strong> — the curve of maximum output combos an economy can produce with fixed resources.</li>
+          </ul>
+        </div>
+        <div class="visual-panel">
+          <h4>Interactive: Production Possibility Frontier</h4>
+          <svg viewBox="0 0 300 220">
+            <line x1="20" y1="20" x2="20" y2="200" stroke="#9fae95" stroke-width="2"/>
+            <line x1="20" y1="200" x2="290" y2="200" stroke="#9fae95" stroke-width="2"/>
+            <path d="M20,20 A260,180 0 0 1 280,200" fill="none" stroke="#2e7d32" stroke-width="3"/>
+            <circle id="ppfDot" cx="150" cy="110" r="7" fill="#f9a825" stroke="#fff" stroke-width="2"/>
+            <text x="8" y="14" font-size="10" fill="#63705f">Rice</text>
+            <text x="255" y="214" font-size="10" fill="#63705f">Corn</text>
+          </svg>
+          <input type="range" id="ppfSlider" min="0" max="100" value="50">
+          <p class="visual-readout" id="ppfReadout"></p>
+        </div>
+      </div>
+      <div class="quiz-card" id="quiz-0">
+        <p class="question-text" id="qtext-0"></p>
+        <div class="options" id="options-0"></div>
+        <div class="action-row">
+          <button class="btn btn-accent hidden" id="submitBtn-0" data-domain="0">Submit Answer</button>
+        </div>
+        <div class="confirm-box hidden" id="confirmBox-0">
+          <p>Are you sure you want to submit this answer?</p>
+          <div class="confirm-actions">
+            <button class="btn btn-primary" id="yesBtn-0" data-domain="0">Yes</button>
+            <button class="btn btn-ghost" id="noBtn-0" data-domain="0">No</button>
+          </div>
+        </div>
+        <div class="feedback hidden" id="feedback-0"></div>
+      </div>
+    </section>
+
+    <!-- DOMAIN 2: MICROECONOMICS -->
+    <section class="slide" id="slide-2">
+      <div class="domain-header">
+        <span class="domain-tag">Domain 2 of 5</span>
+        <h2>Microeconomics</h2>
+      </div>
+      <div class="domain-grid">
+        <div class="review-panel">
+          <h3 class="umbrella">📗 Market Equilibrium &amp; Elasticity</h3>
+          <ul class="subtopics">
+            <li><strong>Demand &amp; Supply</strong> — equilibrium price/quantity is where the two curves intersect.</li>
+            <li><strong>Price Elasticity</strong> — measures how responsive quantity is to a price change (%ΔQ ÷ %ΔP).</li>
+            <li><strong>Surplus</strong> — consumer surplus (benefit above price paid) and producer surplus (revenue above cost).</li>
+          </ul>
+        </div>
+        <div class="visual-panel">
+          <h4>Interactive: Demand Curve Shift</h4>
+          <svg viewBox="0 0 300 220">
+            <line x1="20" y1="20" x2="20" y2="205" stroke="#9fae95" stroke-width="2"/>
+            <line x1="20" y1="205" x2="290" y2="205" stroke="#9fae95" stroke-width="2"/>
+            <line x1="30" y1="195" x2="250" y2="70" stroke="#2e7d32" stroke-width="3"/>
+            <line id="sdDemandLine" x1="30" y1="90" x2="200" y2="205" stroke="#5b8def" stroke-width="3"/>
+            <circle id="sdEqDot" cx="140" cy="140" r="7" fill="#f9a825" stroke="#fff" stroke-width="2"/>
+            <text x="8" y="14" font-size="10" fill="#63705f">Price</text>
+            <text x="255" y="219" font-size="10" fill="#63705f">Qty</text>
+          </svg>
+          <input type="range" id="sdSlider" min="-40" max="40" value="0">
+          <p class="visual-readout" id="sdReadout"></p>
+        </div>
+      </div>
+      <div class="quiz-card" id="quiz-1">
+        <p class="question-text" id="qtext-1"></p>
+        <div class="options" id="options-1"></div>
+        <div class="action-row">
+          <button class="btn btn-accent hidden" id="submitBtn-1" data-domain="1">Submit Answer</button>
+        </div>
+        <div class="confirm-box hidden" id="confirmBox-1">
+          <p>Are you sure you want to submit this answer?</p>
+          <div class="confirm-actions">
+            <button class="btn btn-primary" id="yesBtn-1" data-domain="1">Yes</button>
+            <button class="btn btn-ghost" id="noBtn-1" data-domain="1">No</button>
+          </div>
+        </div>
+        <div class="feedback hidden" id="feedback-1"></div>
+      </div>
+    </section>
+
+    <!-- DOMAIN 3: MACROECONOMICS -->
+    <section class="slide" id="slide-3">
+      <div class="domain-header">
+        <span class="domain-tag">Domain 3 of 5</span>
+        <h2>Macroeconomics</h2>
+      </div>
+      <div class="domain-grid">
+        <div class="review-panel">
+          <h3 class="umbrella">📙 National Income &amp; Inflation</h3>
+          <ul class="subtopics">
+            <li><strong>GDP/GNP</strong> — total value of goods &amp; services produced domestically vs. by nationals.</li>
+            <li><strong>Inflation &amp; CPI</strong> — general rise in prices, tracked via the Consumer Price Index.</li>
+            <li><strong>Unemployment</strong> — share of the labor force without work but actively seeking it.</li>
+          </ul>
+        </div>
+        <div class="visual-panel">
+          <h4>Interactive: CPI Trend &amp; Inflation</h4>
+          <svg viewBox="0 0 300 220">
+            <line x1="20" y1="20" x2="20" y2="205" stroke="#9fae95" stroke-width="2"/>
+            <line x1="20" y1="205" x2="290" y2="205" stroke="#9fae95" stroke-width="2"/>
+            <polyline points="20,187 72,176.6 124,163.6 176,148 228,135 280,119.4" fill="none" stroke="#2e7d32" stroke-width="3"/>
+            <circle id="cpiDot" cx="280" cy="119.4" r="7" fill="#f9a825" stroke="#fff" stroke-width="2"/>
+            <text x="8" y="14" font-size="10" fill="#63705f">CPI</text>
+            <text x="248" y="219" font-size="10" fill="#63705f">Year</text>
+          </svg>
+          <input type="range" id="cpiSlider" min="1" max="5" value="5">
+          <p class="visual-readout" id="cpiReadout"></p>
+        </div>
+      </div>
+      <div class="quiz-card" id="quiz-2">
+        <p class="question-text" id="qtext-2"></p>
+        <div class="options" id="options-2"></div>
+        <div class="action-row">
+          <button class="btn btn-accent hidden" id="submitBtn-2" data-domain="2">Submit Answer</button>
+        </div>
+        <div class="confirm-box hidden" id="confirmBox-2">
+          <p>Are you sure you want to submit this answer?</p>
+          <div class="confirm-actions">
+            <button class="btn btn-primary" id="yesBtn-2" data-domain="2">Yes</button>
+            <button class="btn btn-ghost" id="noBtn-2" data-domain="2">No</button>
+          </div>
+        </div>
+        <div class="feedback hidden" id="feedback-2"></div>
+      </div>
+    </section>
+
+    <!-- DOMAIN 4: AGRICULTURAL MARKETING -->
+    <section class="slide" id="slide-4">
+      <div class="domain-header">
+        <span class="domain-tag">Domain 4 of 5</span>
+        <h2>Agricultural Marketing</h2>
+      </div>
+      <div class="domain-grid">
+        <div class="review-panel">
+          <h3 class="umbrella">📕 Marketing Margins &amp; Channels</h3>
+          <ul class="subtopics">
+            <li><strong>Marketing Margin</strong> — the gap between farm gate and retail price, covering cost &amp; profit of middlemen.</li>
+            <li><strong>Marketing Channels</strong> — the path (farmer → wholesaler → retailer → consumer) goods travel through.</li>
+            <li><strong>Value Addition</strong> — processing raw produce to raise its price and marketability.</li>
+          </ul>
+        </div>
+        <div class="visual-panel">
+          <h4>Interactive: Marketing Channel Pricing</h4>
+          <div class="chain-row">
+            <div class="chain-node"><div class="node-title">Farm Gate</div><div class="node-value" id="chainFarmgate">PhP25.00</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-node"><div class="node-title">Wholesaler</div><div class="node-value" id="chainWholesale">PhP30.00</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-node"><div class="node-title">Retail</div><div class="node-value" id="chainRetail">PhP37.50</div></div>
+          </div>
+          <input type="range" id="chainSlider" min="20" max="40" value="25">
+          <p class="visual-readout" id="chainMargin"></p>
+        </div>
+      </div>
+      <div class="quiz-card" id="quiz-3">
+        <p class="question-text" id="qtext-3"></p>
+        <div class="options" id="options-3"></div>
+        <div class="action-row">
+          <button class="btn btn-accent hidden" id="submitBtn-3" data-domain="3">Submit Answer</button>
+        </div>
+        <div class="confirm-box hidden" id="confirmBox-3">
+          <p>Are you sure you want to submit this answer?</p>
+          <div class="confirm-actions">
+            <button class="btn btn-primary" id="yesBtn-3" data-domain="3">Yes</button>
+            <button class="btn btn-ghost" id="noBtn-3" data-domain="3">No</button>
+          </div>
+        </div>
+        <div class="feedback hidden" id="feedback-3"></div>
+      </div>
+    </section>
+
+    <!-- DOMAIN 5: AGRICULTURE & ECONOMIC GROWTH -->
+    <section class="slide" id="slide-5">
+      <div class="domain-header">
+        <span class="domain-tag">Domain 5 of 5</span>
+        <h2>Agriculture &amp; Economic Growth</h2>
+      </div>
+      <div class="domain-grid">
+        <div class="review-panel">
+          <h3 class="umbrella">📔 Agriculture's Role in Development</h3>
+          <ul class="subtopics">
+            <li><strong>Structural Transformation</strong> — economies shift labor and output from agriculture toward industry &amp; services.</li>
+            <li><strong>Rural-Urban Linkages</strong> — agriculture supplies food, labor, and raw materials fueling urban growth.</li>
+            <li><strong>Food Security &amp; Sustainability</strong> — balancing productivity growth with environmental resilience.</li>
+          </ul>
+        </div>
+        <div class="visual-panel">
+          <h4>Interactive: Sectoral Share of GDP (illustrative)</h4>
+          <div class="sector-chart">
+            <div class="sector-col">
+              <div class="sector-bar bar-agri" id="barAgri" style="height:50px;"></div>
+              <span class="sector-name">Agri</span>
+            </div>
+            <div class="sector-col">
+              <div class="sector-bar bar-industry" id="barIndustry" style="height:76px;"></div>
+              <span class="sector-name">Industry</span>
+            </div>
+            <div class="sector-col">
+              <div class="sector-bar bar-services" id="barServices" style="height:74px;"></div>
+              <span class="sector-name">Services</span>
+            </div>
+          </div>
+          <input type="range" id="sectorSlider" min="0" max="3" value="0">
+          <p class="visual-readout" id="sectorReadout"></p>
+        </div>
+      </div>
+      <div class="quiz-card" id="quiz-4">
+        <p class="question-text" id="qtext-4"></p>
+        <div class="options" id="options-4"></div>
+        <div class="action-row">
+          <button class="btn btn-accent hidden" id="submitBtn-4" data-domain="4">Submit Answer</button>
+        </div>
+        <div class="confirm-box hidden" id="confirmBox-4">
+          <p>Are you sure you want to submit this answer?</p>
+          <div class="confirm-actions">
+            <button class="btn btn-primary" id="yesBtn-4" data-domain="4">Yes</button>
+            <button class="btn btn-ghost" id="noBtn-4" data-domain="4">No</button>
+          </div>
+        </div>
+        <div class="feedback hidden" id="feedback-4"></div>
+      </div>
+    </section>
+
+    <!-- SCORE -->
+    <section class="slide" id="slide-6">
+      <div class="score-card">
+        <div class="intro-emoji">🎓</div>
+        <h1 style="margin:4px 0 0; font-size:1.3rem; color:var(--primary-dark);">Your Results</h1>
+        <div class="score-number" id="scoreNumber">0 / 5</div>
+        <p class="motivation" id="motivationText"></p>
+        <div class="rec-title">📌 Study Focus Recommendations</div>
+        <div id="recommendations"></div>
+        <button class="btn btn-accent btn-block" id="retakeBtn" style="margin-top:24px;">🔁 Retake Quiz (1 attempt available)</button>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="navbar" id="navbar">
+    <button class="btn btn-ghost" id="prevBtn">← Back</button>
+    <button class="btn btn-primary" id="nextBtn">Next →</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ---------------------------- QUESTION DATA ---------------------------- */
+const primaryQuestions = [
+  {
+    question: "A farmer decides to plant corn instead of rice on his one-hectare farm. The value of the rice harvest he gives up is called:",
+    options: ["Sunk cost", "Opportunity cost", "Marginal cost", "Fixed cost"],
+    correct: 1,
+    feedbackCorrect: "Correct! Opportunity cost is the value of the next-best alternative forgone when a choice is made — here, the rice harvest not planted.",
+    feedbackWrong: "Not quite. The value of the rice harvest given up is the <strong>opportunity cost</strong> — what you sacrifice to obtain something else.",
+    calculation: null
+  },
+  {
+    question: "The price of rice rises from PhP40/kg to PhP44/kg, and quantity demanded falls from 100 kg to 92 kg per week. What is the price elasticity of demand, and how is rice classified?",
+    options: ["Ed = -0.8 (inelastic)", "Ed = -2.0 (elastic)", "Ed = -1.0 (unit elastic)", "Ed = -0.2 (inelastic)"],
+    correct: 0,
+    feedbackCorrect: "Correct! Rice demand is inelastic — quantity demanded changes proportionally less than price, typical of a staple food.",
+    feedbackWrong: "Not quite. Let's work through the elasticity formula below.",
+    calculation: "%ΔQd = (92 − 100) ÷ 100 × 100 = −8%<br>%ΔP = (44 − 40) ÷ 40 × 100 = +10%<br>Ed = %ΔQd ÷ %ΔP = −8% ÷ 10% = <strong>−0.8</strong><br>|Ed| &lt; 1 → <strong>Inelastic</strong> demand (rice is a necessity)"
+  },
+  {
+    question: "The Consumer Price Index (CPI) was 120 last year and is 126 this year. What is this year's inflation rate?",
+    options: ["4%", "5%", "6%", "10%"],
+    correct: 1,
+    feedbackCorrect: "Correct! A CPI rise from 120 to 126 reflects a 5% inflation rate for the year.",
+    feedbackWrong: "Not quite. Check the CPI growth formula below.",
+    calculation: "Inflation Rate = (CPI this year − CPI last year) ÷ CPI last year × 100<br>= (126 − 120) ÷ 120 × 100<br>= 6 ÷ 120 × 100 = <strong>5%</strong>"
+  },
+  {
+    question: "Palay is sold by the farmer at PhP25/kg (farm gate price). After passing through the marketing chain, it reaches the consumer at PhP40/kg (retail price). What is the marketing margin?",
+    options: ["PhP15, or 37.5% of retail price", "PhP25, or 62.5% of retail price", "PhP15, or 60% of retail price", "PhP40, or 100% of retail price"],
+    correct: 0,
+    feedbackCorrect: "Correct! The PhP15 spread represents the combined cost and profit of middlemen, equal to 37.5% of the retail price.",
+    feedbackWrong: "Not quite. Let's compute the marketing margin step by step below.",
+    calculation: "Marketing Margin (PhP) = Retail Price − Farm Gate Price<br>= PhP40 − PhP25 = <strong>PhP15</strong><br>Marketing Margin (%) = (Margin ÷ Retail Price) × 100<br>= (15 ÷ 40) × 100 = <strong>37.5%</strong>"
+  },
+  {
+    question: "Which economic model describes agriculture releasing 'surplus labor' to fuel industrial growth as an economy develops?",
+    options: ["Lewis Dual-Sector Model", "Solow Growth Model", "Harrod-Domar Model", "Rostow's Stages of Growth"],
+    correct: 0,
+    feedbackCorrect: "Correct! The Lewis Model explains how surplus agricultural labor migrates to the industrial sector, driving structural transformation.",
+    feedbackWrong: "Not quite. This scenario describes the <strong>Lewis Dual-Sector Model</strong> of structural transformation.",
+    calculation: null
+  }
+];
+
+const retakeQuestions = [
+  {
+    question: "Because of limited fertilizer, a cooperative can produce either 100 sacks of corn OR 60 sacks of soybeans, or a combination in between. This trade-off is best illustrated by which economic tool?",
+    options: ["Production Possibility Frontier (PPF)", "Demand Curve", "Circular Flow Diagram", "Lorenz Curve"],
+    correct: 0,
+    feedbackCorrect: "Correct! The PPF shows the maximum combinations of two goods producible with fixed, fully-employed resources.",
+    feedbackWrong: "Not quite. This scenario describes a <strong>Production Possibility Frontier (PPF)</strong> — the trade-off curve between two outputs.",
+    calculation: null
+  },
+  {
+    question: "A trader buys mangoes at PhP30/kg and sells at PhP50/kg. If she sells 200 kg, what is her total gross trading margin?",
+    options: ["PhP4,000", "PhP10,000", "PhP6,000", "PhP2,000"],
+    correct: 0,
+    feedbackCorrect: "Correct! Margin per kilo (PhP20) × 200 kg = PhP4,000 gross trading margin.",
+    feedbackWrong: "Not quite. Let's compute it step-by-step below.",
+    calculation: "Margin per kg = Selling Price − Buying Price = PhP50 − PhP30 = PhP20<br>Total Margin = Margin per kg × Quantity Sold<br>= PhP20 × 200 kg = <strong>PhP4,000</strong>"
+  },
+  {
+    question: "The Philippines' nominal GDP was PhP19.4 trillion in Year 1 and PhP20.4 trillion in Year 2. What is the approximate GDP growth rate?",
+    options: ["~5.2%", "~10%", "~2.5%", "~15%"],
+    correct: 0,
+    feedbackCorrect: "Correct! Growth rate ≈ 5.2%, calculated from the change in GDP over the base year.",
+    feedbackWrong: "Not quite. Let's work through the growth rate formula below.",
+    calculation: "Growth Rate = (GDP Year2 − GDP Year1) ÷ GDP Year1 × 100<br>= (20.4 − 19.4) ÷ 19.4 × 100<br>= 1.0 ÷ 19.4 × 100 ≈ <strong>5.2%</strong>"
+  },
+  {
+    question: "Onions leave the farm at PhP35/kg and reach the consumer at PhP60/kg. What percentage of the retail price goes to the farmer (farmer's share)?",
+    options: ["~58.3%", "~41.7%", "~35%", "~71.4%"],
+    correct: 0,
+    feedbackCorrect: "Correct! The farmer's share of the consumer's peso is about 58.3% — a relatively favorable share.",
+    feedbackWrong: "Not quite. Let's calculate the farmer's share step by step below.",
+    calculation: "Farmer's Share (%) = (Farm Gate Price ÷ Retail Price) × 100<br>= (35 ÷ 60) × 100 ≈ <strong>58.3%</strong>"
+  },
+  {
+    question: "A country shifts from exporting raw coconuts to exporting processed coconut oil and desiccated coconut, earning more per unit. This illustrates:",
+    options: ["Value addition / agro-processing", "Comparative disadvantage", "Autarky", "Diminishing returns"],
+    correct: 0,
+    feedbackCorrect: "Correct! Value addition through agro-processing raises the export value and income earned from the same raw material.",
+    feedbackWrong: "Not quite. This scenario describes <strong>value addition</strong> through agro-processing, a key driver of agricultural economic growth.",
+    calculation: null
+  }
+];
+
+const domainNames = ["General Economics", "Microeconomics", "Macroeconomics", "Agricultural Marketing", "Agriculture & Economic Growth"];
+const recommendations = [
+  "Revisit scarcity, opportunity cost, and the Production Possibility Frontier (PPF) — the foundation of every economic trade-off.",
+  "Practice price elasticity of demand/supply calculations and supply-demand curve shifts — a heavily tested Microeconomics topic.",
+  "Review GDP/GNP computation, CPI, and inflation rate formulas — core Macroeconomics numeracy skills.",
+  "Master marketing margin, farmer's share, and price spread calculations across the marketing chain.",
+  "Study structural transformation models (e.g., Lewis Dual-Sector) and agriculture's role in industrialization and growth."
+];
+
+/* ---------------------------- STATE ---------------------------- */
+const state = {
+  current: 0,
+  isRetake: false,
+  retakeUsed: false,
+  answers: [0,1,2,3,4].map(() => ({selected:null, confirmed:false, correct:null}))
+};
+function getQuestions(){ return state.isRetake ? retakeQuestions : primaryQuestions; }
+
+/* ---------------------------- SLIDE NAV ---------------------------- */
+const slideEls = [0,1,2,3,4,5,6].map(i => document.getElementById('slide-'+i));
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const navbar = document.getElementById('navbar');
+const progressBar = document.getElementById('progressBar');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderSlide(){
+  slideEls.forEach((el,i) => el.classList.toggle('active', i===state.current));
+  progressBar.style.width = (state.current/6*100)+'%';
+  if(state.current===0){ progressLabel.textContent = 'Introduction'; }
+  else if(state.current>=1 && state.current<=5){ progressLabel.textContent = 'Question '+state.current+' of 5'; }
+  else { progressLabel.textContent = 'Results'; }
+
+  prevBtn.style.visibility = state.current===0 ? 'hidden' : 'visible';
+  navbar.style.display = state.current===0 || state.current===6 ? 'none' : 'flex';
+  nextBtn.textContent = state.current===5 ? 'See Results →' : 'Next →';
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  state.current = 1; renderSlide();
+});
+
+prevBtn.addEventListener('click', ()=>{
+  if(state.current>0){ state.current--; renderSlide(); }
+});
+
+nextBtn.addEventListener('click', ()=>{
+  if(state.current>=1 && state.current<=5){
+    const d = state.current-1;
+    if(!state.answers[d].confirmed){
+      showToast('Please select an answer to proceed.');
+      return;
+    }
+  }
+  if(state.current===5){
+    computeScore();
+    state.current = 6;
+  } else {
+    state.current++;
+  }
+  renderSlide();
+});
+
+/* ---------------------------- QUIZ RENDERING ---------------------------- */
+function renderDomain(d){
+  const q = getQuestions()[d];
+  document.getElementById('qtext-'+d).textContent = q.question;
+  const opts = document.getElementById('options-'+d);
+  opts.innerHTML = '';
+  q.options.forEach((opt,i) => {
+    const div = document.createElement('div');
+    div.className = 'option-card';
+    div.textContent = opt;
+    div.addEventListener('click', ()=> selectOption(d,i));
+    opts.appendChild(div);
+  });
+  document.getElementById('submitBtn-'+d).classList.add('hidden');
+  document.getElementById('confirmBox-'+d).classList.add('hidden');
+  const fb = document.getElementById('feedback-'+d);
+  fb.classList.add('hidden');
+  fb.classList.remove('feedback-correct','feedback-wrong');
+  fb.innerHTML = '';
+}
+
+function selectOption(d, i){
+  const ans = state.answers[d];
+  if(ans.confirmed) return;
+  ans.selected = i;
+  const opts = document.getElementById('options-'+d);
+  [...opts.children].forEach((el,idx) => el.classList.toggle('selected', idx===i));
+  document.getElementById('submitBtn-'+d).classList.remove('hidden');
+  document.getElementById('confirmBox-'+d).classList.add('hidden');
+}
+
+document.querySelectorAll('[id^="submitBtn-"]').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    const d = +btn.dataset.domain;
+    document.getElementById('confirmBox-'+d).classList.remove('hidden');
+    btn.classList.add('hidden');
+  });
+});
+
+document.querySelectorAll('[id^="noBtn-"]').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    const d = +btn.dataset.domain;
+    document.getElementById('confirmBox-'+d).classList.add('hidden');
+    document.getElementById('submitBtn-'+d).classList.remove('hidden');
+  });
+});
+
+document.querySelectorAll('[id^="yesBtn-"]').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    const d = +btn.dataset.domain;
+    confirmAnswer(d);
+  });
+});
+
+function confirmAnswer(d){
+  const ans = state.answers[d];
+  const q = getQuestions()[d];
+  ans.confirmed = true;
+  ans.correct = (ans.selected === q.correct);
+
+  const opts = document.getElementById('options-'+d);
+  [...opts.children].forEach((el,i) => {
+    el.classList.add('disabled');
+    if(i === q.correct) el.classList.add('correct-answer');
+    if(i === ans.selected && !ans.correct) el.classList.add('wrong-answer');
+  });
+
+  document.getElementById('confirmBox-'+d).classList.add('hidden');
+
+  const fb = document.getElementById('feedback-'+d);
+  fb.classList.remove('hidden');
+  fb.classList.add(ans.correct ? 'feedback-correct' : 'feedback-wrong');
+  let html = '<p class="feedback-title">'+(ans.correct ? '✅ Correct!' : '❌ Not quite.')+'</p>';
+  html += '<p>'+(ans.correct ? q.feedbackCorrect : q.feedbackWrong)+'</p>';
+  if(q.calculation){
+    html += '<div class="calc-box"><strong>Step-by-step:</strong><br>'+q.calculation+'</div>';
+  }
+  fb.innerHTML = html;
+}
+
+/* ---------------------------- SCORE PAGE ---------------------------- */
+function computeScore(){
+  const score = state.answers.filter(a=>a.correct).length;
+  document.getElementById('scoreNumber').textContent = score+' / 5';
+
+  const recBox = document.getElementById('recommendations');
+  recBox.innerHTML = '';
+  const wrong = [];
+  state.answers.forEach((a,i)=>{ if(!a.correct) wrong.push(i); });
+
+  if(wrong.length===0){
+    recBox.innerHTML = '<div class="all-correct">🎉 Perfect score! No weak spots identified — keep maintaining your mastery across all five domains.</div>';
+  } else {
+    wrong.forEach(i => {
+      const div = document.createElement('div');
+      div.className = 'rec-item';
+      div.innerHTML = '<strong>'+domainNames[i]+':</strong> '+recommendations[i];
+      recBox.appendChild(div);
+    });
+  }
+
+  let motivation;
+  if(score===5) motivation = "Outstanding! You're exam-ready — keep sharpening speed and accuracy under timed conditions.";
+  else if(score===4) motivation = "Great job! You're almost there — polish up the one weak spot above before exam day.";
+  else if(score===3) motivation = "Good foundation! Review your weak domains below — you're halfway to mastery.";
+  else if(score===2) motivation = "Keep going! Focus your review time on the domains flagged below.";
+  else motivation = "Don't be discouraged — every mistake today is a lesson learned before the real AgLE. Review the focus areas below and try again.";
+  document.getElementById('motivationText').textContent = motivation;
+
+  const retakeBtn = document.getElementById('retakeBtn');
+  if(state.retakeUsed){
+    retakeBtn.disabled = true;
+    retakeBtn.textContent = '🔒 Retake already used';
+  } else {
+    retakeBtn.disabled = false;
+    retakeBtn.textContent = '🔁 Retake Quiz (1 attempt available)';
+  }
+}
+
+document.getElementById('retakeBtn').addEventListener('click', ()=>{
+  if(state.retakeUsed) return;
+  state.retakeUsed = true;
+  state.isRetake = true;
+  state.answers = [0,1,2,3,4].map(()=>({selected:null, confirmed:false, correct:null}));
+  for(let i=0;i<5;i++) renderDomain(i);
+  state.current = 1;
+  renderSlide();
+});
+
+/* ---------------------------- VISUAL FIGURES ---------------------------- */
+function initPPF(){
+  const slider = document.getElementById('ppfSlider');
+  const readout = document.getElementById('ppfReadout');
+  const dot = document.getElementById('ppfDot');
+  function update(){
+    const v = +slider.value;
+    const t = v/100;
+    const cornUnits = Math.round(t*100);
+    const riceUnits = Math.round(100*Math.sqrt(Math.max(0,1-t*t)));
+    const x = 20 + t*260;
+    const y = 200 - (riceUnits/100)*180;
+    dot.setAttribute('cx', x);
+    dot.setAttribute('cy', y);
+    readout.textContent = 'Corn: '+cornUnits+' units · Rice: '+riceUnits+' units — moving along the frontier means more corn output costs rice output (opportunity cost).';
+  }
+  slider.addEventListener('input', update);
+  update();
+}
+
+function initSD(){
+  const slider = document.getElementById('sdSlider');
+  const line = document.getElementById('sdDemandLine');
+  const dot = document.getElementById('sdEqDot');
+  const readout = document.getElementById('sdReadout');
+  function svgX(q){ return 30 + q*2.2; }
+  function svgY(p){ return 205 - p*2.25; }
+  function update(){
+    const shift = +slider.value;
+    const dP0 = 80 + shift;
+    const qMax = dP0/0.6;
+    line.setAttribute('x1', svgX(0)); line.setAttribute('y1', svgY(dP0));
+    line.setAttribute('x2', svgX(qMax)); line.setAttribute('y2', svgY(0));
+    const eqQ = (70+shift)/1.1;
+    const eqP = 10+0.5*eqQ;
+    dot.setAttribute('cx', svgX(eqQ));
+    dot.setAttribute('cy', svgY(eqP));
+    let dir = shift>0 ? 'Demand shifted RIGHT (e.g., rising incomes/population) → higher price & quantity.'
+            : shift<0 ? 'Demand shifted LEFT (e.g., falling incomes) → lower price & quantity.'
+            : 'Baseline demand — no shift applied.';
+    readout.textContent = 'Shift: '+(shift>=0?'+':'')+shift+' → Equilibrium: Q ≈ '+eqQ.toFixed(1)+', P ≈ PhP'+eqP.toFixed(1)+'. '+dir;
+  }
+  slider.addEventListener('input', update);
+  update();
+}
+
+function initCPI(){
+  const data = [100,104,109,115,120,126];
+  const years = ['2021','2022','2023','2024','2025','2026'];
+  const slider = document.getElementById('cpiSlider');
+  const dot = document.getElementById('cpiDot');
+  const readout = document.getElementById('cpiReadout');
+  function svgX(i){ return 20 + i*52; }
+  function svgY(v){ return 200 - (v-95)*2.6; }
+  function update(){
+    const i = +slider.value;
+    dot.setAttribute('cx', svgX(i));
+    dot.setAttribute('cy', svgY(data[i]));
+    const inflation = ((data[i]-data[i-1])/data[i-1]*100).toFixed(1);
+    readout.textContent = years[i]+': CPI = '+data[i]+' → Inflation vs '+years[i-1]+' = '+inflation+'%';
+  }
+  slider.addEventListener('input', update);
+  update();
+}
+
+function initChain(){
+  const slider = document.getElementById('chainSlider');
+  const fgOut = document.getElementById('chainFarmgate');
+  const whOut = document.getElementById('chainWholesale');
+  const rtOut = document.getElementById('chainRetail');
+  const marginOut = document.getElementById('chainMargin');
+  function update(){
+    const fg = +slider.value;
+    const wh = fg*1.20;
+    const rt = wh*1.25;
+    const margin = rt-fg;
+    const marginPct = margin/rt*100;
+    fgOut.textContent = 'PhP'+fg.toFixed(2);
+    whOut.textContent = 'PhP'+wh.toFixed(2);
+    rtOut.textContent = 'PhP'+rt.toFixed(2);
+    marginOut.textContent = 'Marketing Margin: PhP'+margin.toFixed(2)+' ('+marginPct.toFixed(1)+'% of retail price)';
+  }
+  slider.addEventListener('input', update);
+  update();
+}
+
+function initSector(){
+  const slider = document.getElementById('sectorSlider');
+  const eras = ['1980','2000','2020','2024'];
+  const data = {
+    '1980': {agri:25, industry:38, services:37},
+    '2000': {agri:14, industry:34, services:52},
+    '2020': {agri:10, industry:29, services:61},
+    '2024': {agri:9,  industry:28, services:63}
+  };
+  const agriBar = document.getElementById('barAgri');
+  const indBar = document.getElementById('barIndustry');
+  const svcBar = document.getElementById('barServices');
+  const readout = document.getElementById('sectorReadout');
+  function update(){
+    const era = eras[+slider.value];
+    const d = data[era];
+    agriBar.style.height = (d.agri*2)+'px';
+    indBar.style.height = (d.industry*2)+'px';
+    svcBar.style.height = (d.services*2)+'px';
+    readout.textContent = era+': Agriculture '+d.agri+'% · Industry '+d.industry+'% · Services '+d.services+'% of GDP (illustrative figures) — note agriculture\'s declining share as the economy structurally transforms.';
+  }
+  slider.addEventListener('input', update);
+  update();
+}
+
+/* ---------------------------- INIT ---------------------------- */
+for(let i=0;i<5;i++) renderDomain(i);
+initPPF(); initSD(); initCPI(); initChain(); initSector();
+renderSlide();
+</script>
+</body>
+</html>
